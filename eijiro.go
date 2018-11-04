@@ -66,6 +66,12 @@ func (e *Eijiro) Import(filename string) error {
 	}
 	defer file.Close()
 
+	os.Remove(e.database)
+	err = e.InitDB()
+	if err != nil {
+		return nil
+	}
+
 	db, err := sqlx.Connect("sqlite3", e.database)
 	if err != nil {
 		return err
