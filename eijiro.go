@@ -3,6 +3,7 @@ package eijiro
 import (
 	"bufio"
 	"os"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/y-yagi/goext/osext"
@@ -80,7 +81,11 @@ func (e *Eijiro) Import(filename string) error {
 	scanner := bufio.NewScanner(file)
 	tx := db.MustBegin()
 	for scanner.Scan() {
-		tx.MustExec(insertQuery, scanner.Text())
+		text := scanner.Text()
+		if strings.HasPrefix(text, "■") {
+			text = strings.TrimPrefix(text, "■")
+		}
+		tx.MustExec(insertQuery, text)
 	}
 
 	if err = scanner.Err(); err != nil {
