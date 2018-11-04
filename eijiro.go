@@ -86,8 +86,8 @@ func (e *Eijiro) Import(filename string) error {
 }
 
 // Select select text from database
-func (w *Eijiro) Select(search string) ([]Document, error) {
-	db, err := sqlx.Connect("sqlite3", w.database)
+func (e *Eijiro) Select(search string) ([]Document, error) {
+	db, err := sqlx.Connect("sqlite3", e.database)
 	if err != nil {
 		return nil, err
 	}
