@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/chzyer/readline"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/y-yagi/configure"
 	"github.com/y-yagi/eijiro"
@@ -92,6 +93,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	}
 
 	var searchText string
+	var l *readline.Instance
 
 	if !interactive {
 		if len(flags.Args()) != 1 {
@@ -100,15 +102,29 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			return
 		}
 		searchText = flags.Args()[0]
+	} else {
+		l, err = readline.NewEx(&readline.Config{
+			Prompt:          "Eiji: ",
+			InterruptPrompt: "^C",
+			Stdout:          outStream,
+		})
+
+		if err != nil {
+			fmt.Fprintf(errStream, "Error: %v\n", err)
+			exitCode = 1
+			return
+		}
+		defer l.Close()
 	}
 
 	for {
 		if interactive {
-			searchText, err = inputSearchText(outStream)
+			searchText, err = l.Readline()
 			if err != nil {
-				fmt.Fprintf(errStream, "Error: %v\n", err)
-				exitCode = 1
 				return
+			}
+			if len(searchText) == 0 {
+				continue
 			}
 		}
 
