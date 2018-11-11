@@ -45,7 +45,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 
 	flags := flag.NewFlagSet(cmd, flag.ExitOnError)
 	flags.SetOutput(errStream)
-	flags.StringVar(&importFile, "i", "", "Import file.")
+	flags.StringVar(&importFile, "i", "", "Import `file`.")
 	flags.BoolVar(&config, "c", false, "Edit config.")
 	flags.Parse(args[1:])
 
