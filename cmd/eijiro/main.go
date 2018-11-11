@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/y-yagi/configure"
@@ -15,7 +17,8 @@ import (
 const cmd = "eijiro"
 
 type config struct {
-	DataBase string `toml:"database"`
+	DataBase  string `toml:"database"`
+	SelectCmd string `tomo:"selectcmd"`
 }
 
 var cfg config
@@ -93,11 +96,28 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		return
 	}
 
+	var buf string
 	for _, document := range documents {
-		fmt.Fprintf(outStream, "%s\n", document.Text)
+		buf += fmt.Sprintf("%s\n", document.Text)
+	}
+
+	if len(cfg.SelectCmd) == 0 {
+		fmt.Fprintf(outStream, "%v\n", buf)
+	} else {
+		runCmd(strings.NewReader(buf), outStream, errStream)
 	}
 
 	return
+}
+
+func runCmd(r io.Reader, out, err io.Writer) error {
+	cmd := exec.Command("sh", "-c", cfg.SelectCmd)
+
+	cmd.Stderr = err
+	cmd.Stdout = out
+	cmd.Stdin = r
+
+	return cmd.Run()
 }
 
 func usage(errStream io.Writer) {
