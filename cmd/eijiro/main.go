@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -40,9 +42,14 @@ func main() {
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
 
+func usage(errStream io.Writer) {
+	fmt.Fprintf(errStream, "Usage: %s [OPTIONS] text\n", cmd)
+}
+
 func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	var importFile string
 	var config bool
+	var interactive bool
 
 	exitCode = 0
 
@@ -50,6 +57,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	flags.SetOutput(errStream)
 	flags.StringVar(&importFile, "i", "", "Import `file`.")
 	flags.BoolVar(&config, "c", false, "Edit config.")
+	flags.BoolVar(&interactive, "interactive", false, "Use interactive mode.")
 	flags.Parse(args[1:])
 
 	if config {
@@ -83,34 +91,67 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		return
 	}
 
-	if len(flags.Args()) != 1 {
-		exitCode = 2
-		usage(errStream)
-		return
+	var searchText string
+
+	if !interactive {
+		if len(flags.Args()) != 1 {
+			exitCode = 2
+			usage(errStream)
+			return
+		}
+		searchText = flags.Args()[0]
 	}
 
-	documents, err := ej.Select(flags.Args()[0])
-	if err != nil {
-		fmt.Fprintf(errStream, "Error: %v\n", err)
-		exitCode = 1
-		return
-	}
+	for {
+		if interactive {
+			searchText, err = inputSearchText(outStream)
+			if err != nil {
+				fmt.Fprintf(errStream, "Error: %v\n", err)
+				exitCode = 1
+				return
+			}
+		}
 
-	var buf string
-	for _, document := range documents {
-		buf += fmt.Sprintf("%s\n", document.Text)
-	}
+		documents, err := ej.Select(searchText)
+		if err != nil {
+			fmt.Fprintf(errStream, "Error: %v\n", err)
+			exitCode = 1
+			return
+		}
 
-	if len(cfg.SelectCmd) == 0 {
-		fmt.Fprintf(outStream, "%v\n", buf)
-	} else {
-		runCmd(strings.NewReader(buf), outStream, errStream)
-	}
+		var buf string
+		for _, document := range documents {
+			buf += fmt.Sprintf("%s\n", document.Text)
+		}
 
+		if len(cfg.SelectCmd) == 0 {
+			fmt.Fprintf(outStream, "%v\n", buf)
+		} else {
+			runSelectCmd(strings.NewReader(buf), outStream, errStream)
+		}
+
+		if !interactive {
+			return
+		}
+	}
 	return
 }
 
-func runCmd(r io.Reader, out, err io.Writer) error {
+func inputSearchText(out io.Writer) (string, error) {
+	fmt.Fprintf(out, "Eiji: ")
+
+	scanner := bufio.NewScanner(os.Stdin)
+	if !scanner.Scan() {
+		return "", errors.New("canceled")
+	}
+	if scanner.Err() != nil {
+		return "", scanner.Err()
+	}
+
+	return scanner.Text(), nil
+}
+
+func runSelectCmd(r io.Reader, out, err io.Writer) error {
 	cmd := exec.Command("sh", "-c", cfg.SelectCmd)
 
 	cmd.Stderr = err
@@ -118,8 +159,4 @@ func runCmd(r io.Reader, out, err io.Writer) error {
 	cmd.Stdin = r
 
 	return cmd.Run()
-}
-
-func usage(errStream io.Writer) {
-	fmt.Fprintf(errStream, "Usage: %s [OPTIONS] text\n", cmd)
 }
