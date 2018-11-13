@@ -56,8 +56,9 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 
 	flags := flag.NewFlagSet(cmd, flag.ExitOnError)
 	flags.SetOutput(errStream)
-	flags.StringVar(&importFile, "i", "", "Import `file`.")
+	flags.StringVar(&importFile, "import", "", "Import `file`.")
 	flags.BoolVar(&config, "c", false, "Edit config.")
+	flags.BoolVar(&interactive, "i", false, "Use interactive mode.")
 	flags.BoolVar(&interactive, "interactive", false, "Use interactive mode.")
 	flags.Parse(args[1:])
 
