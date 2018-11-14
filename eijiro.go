@@ -110,5 +110,12 @@ func (e *Eijiro) Select(search string) ([]Document, error) {
 		return nil, err
 	}
 
+	if len(documents) == 0 {
+		if db.Select(&documents, selectQuery, "%"+search); err != nil {
+			return nil, err
+		}
+
+	}
+
 	return documents, nil
 }
