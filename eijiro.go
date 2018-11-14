@@ -105,7 +105,7 @@ func (e *Eijiro) Select(search string) ([]Document, error) {
 	defer db.Close()
 
 	documents := []Document{}
-	err = db.Select(&documents, selectQuery, "%"+search+"%")
+	err = db.Select(&documents, selectQuery, search+"%")
 	if err != nil {
 		return nil, err
 	}
