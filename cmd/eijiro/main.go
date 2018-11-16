@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -152,20 +150,6 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		}
 	}
 	return
-}
-
-func inputSearchText(out io.Writer) (string, error) {
-	fmt.Fprintf(out, "Eiji: ")
-
-	scanner := bufio.NewScanner(os.Stdin)
-	if !scanner.Scan() {
-		return "", errors.New("canceled")
-	}
-	if scanner.Err() != nil {
-		return "", scanner.Err()
-	}
-
-	return scanner.Text(), nil
 }
 
 func runSelectCmd(r io.Reader, out, err io.Writer) error {
