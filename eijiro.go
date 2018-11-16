@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/y-yagi/goext/osext"
@@ -21,10 +22,6 @@ CREATE TABLE documents (
 `
 	insertQuery = `
 INSERT INTO documents (english, japanese, parts_of_speech, text) VALUES ($1,$2, $3, $4)
-`
-
-	selectQuery = `
-SELECT text FROM documents WHERE text LIKE $1
 `
 )
 
@@ -122,17 +119,24 @@ func (e *Eijiro) Select(search string) ([]Document, error) {
 	defer db.Close()
 
 	documents := []Document{}
-	err = db.Select(&documents, selectQuery, search+"%")
+	if isASCII(search) {
+		db.Select(&documents, "SELECT text FROM documents WHERE english = $1 OR english LIKE $2", search, search+"%")
+	} else {
+		db.Select(&documents, "SELECT text FROM documents WHERE japanese LIKE $1", search+"%")
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	if len(documents) == 0 {
-		if db.Select(&documents, selectQuery, "%"+search); err != nil {
-			return nil, err
-		}
-
-	}
-
 	return documents, nil
+}
+
+func isASCII(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] >= utf8.RuneSelf {
+			return false
+		}
+	}
+	return true
 }
