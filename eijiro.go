@@ -13,11 +13,14 @@ var (
 	schema = `
 CREATE TABLE documents (
 	id integer primary key autoincrement not null,
+	english varchar not null,
+	japanese varchar not null,
+	parts_of_speech varchar,
 	text varchar not null
 );
 `
 	insertQuery = `
-INSERT INTO documents (text) VALUES ($1)
+INSERT INTO documents (english, japanese, parts_of_speech, text) VALUES ($1,$2, $3, $4)
 `
 
 	selectQuery = `
@@ -85,7 +88,21 @@ func (e *Eijiro) Import(filename string) error {
 		if strings.HasPrefix(text, "■") {
 			text = strings.TrimPrefix(text, "■")
 		}
-		tx.MustExec(insertQuery, text)
+
+		var en, ja, partsOfSpeech string
+
+		words := strings.Split(text, ":")
+		ja = strings.TrimSpace(words[1])
+		startIndex := strings.IndexAny(words[0], "{")
+		if startIndex != -1 {
+			endIndex := strings.IndexAny(words[0], "}")
+			partsOfSpeech = words[0][startIndex+1 : endIndex]
+			en = strings.TrimSpace(words[0][:startIndex])
+		} else {
+			en = strings.TrimSpace(words[0])
+		}
+
+		tx.MustExec(insertQuery, en, ja, partsOfSpeech, text)
 	}
 
 	if err = scanner.Err(); err != nil {
