@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/y-yagi/goext/osext"
@@ -13,15 +14,14 @@ var (
 	schema = `
 CREATE TABLE documents (
 	id integer primary key autoincrement not null,
+	english varchar not null,
+	japanese varchar not null,
+	parts_of_speech varchar,
 	text varchar not null
 );
 `
 	insertQuery = `
-INSERT INTO documents (text) VALUES ($1)
-`
-
-	selectQuery = `
-SELECT text FROM documents WHERE text LIKE $1
+INSERT INTO documents (english, japanese, parts_of_speech, text) VALUES ($1,$2, $3, $4)
 `
 )
 
@@ -85,7 +85,21 @@ func (e *Eijiro) Import(filename string) error {
 		if strings.HasPrefix(text, "■") {
 			text = strings.TrimPrefix(text, "■")
 		}
-		tx.MustExec(insertQuery, text)
+
+		var en, ja, partsOfSpeech string
+
+		words := strings.Split(text, ":")
+		ja = strings.TrimSpace(words[1])
+		startIndex := strings.IndexAny(words[0], "{")
+		if startIndex != -1 {
+			endIndex := strings.IndexAny(words[0], "}")
+			partsOfSpeech = words[0][startIndex+1 : endIndex]
+			en = strings.TrimSpace(words[0][:startIndex])
+		} else {
+			en = strings.TrimSpace(words[0])
+		}
+
+		tx.MustExec(insertQuery, en, ja, partsOfSpeech, text)
 	}
 
 	if err = scanner.Err(); err != nil {
@@ -105,17 +119,24 @@ func (e *Eijiro) Select(search string) ([]Document, error) {
 	defer db.Close()
 
 	documents := []Document{}
-	err = db.Select(&documents, selectQuery, search+"%")
+	if isASCII(search) {
+		db.Select(&documents, "SELECT text FROM documents WHERE english = $1 OR english LIKE $2", search, search+"%")
+	} else {
+		db.Select(&documents, "SELECT text FROM documents WHERE japanese LIKE $1", search+"%")
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	if len(documents) == 0 {
-		if db.Select(&documents, selectQuery, "%"+search); err != nil {
-			return nil, err
-		}
-
-	}
-
 	return documents, nil
+}
+
+func isASCII(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] >= utf8.RuneSelf {
+			return false
+		}
+	}
+	return true
 }
