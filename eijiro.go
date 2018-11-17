@@ -19,6 +19,9 @@ CREATE TABLE documents (
 	parts_of_speech varchar,
 	text varchar not null
 );
+
+CREATE INDEX "index_documents_on_english" ON "documents" ("english");
+CREATE INDEX "index_documents_on_japanese" ON "documents" ("japanese");
 `
 	insertQuery = `
 INSERT INTO documents (english, japanese, parts_of_speech, text) VALUES ($1,$2, $3, $4)
