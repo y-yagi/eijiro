@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/chzyer/readline"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/y-yagi/configure"
+	"github.com/y-yagi/debuglog"
 	"github.com/y-yagi/eijiro"
 )
 
@@ -23,6 +25,7 @@ type config struct {
 }
 
 var cfg config
+var dlogger *debuglog.Logger
 
 func init() {
 	err := configure.Load(cmd, &cfg)
@@ -35,6 +38,7 @@ func init() {
 		cfg.DataBase = filepath.Join(configure.ConfigDir(cmd), cmd+".db")
 		configure.Save(cmd, cfg)
 	}
+	dlogger = debuglog.New(os.Stderr, debuglog.Flag(log.LstdFlags))
 }
 
 func main() {
@@ -128,12 +132,14 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			}
 		}
 
+		dlogger.Print("Start Select")
 		documents, err := ej.Select(searchText)
 		if err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
 			return
 		}
+		dlogger.Print("End Select")
 
 		var buf string
 		for _, document := range documents {
