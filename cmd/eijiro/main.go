@@ -41,8 +41,9 @@ func main() {
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
 
-func usage(errStream io.Writer) {
-	fmt.Fprintf(errStream, "Usage: %s [OPTIONS] text\n", cmd)
+func usage(flags *flag.FlagSet) {
+	fmt.Printf("Usage: %s [OPTIONS] text\n", cmd)
+	flags.PrintDefaults()
 }
 
 func run(args []string, outStream, errStream io.Writer) (exitCode int) {
@@ -97,7 +98,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	if !interactive {
 		if len(flags.Args()) != 1 {
 			exitCode = 2
-			usage(errStream)
+			usage(flags)
 			return
 		}
 		searchText = flags.Args()[0]
