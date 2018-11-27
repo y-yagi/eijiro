@@ -2,11 +2,12 @@ package eijiro
 
 import (
 	"bufio"
+	"database/sql"
 	"os"
 	"strings"
 	"unicode/utf8"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/y-yagi/eijiro/models"
 	"github.com/y-yagi/goext/osext"
 )
 
@@ -23,20 +24,11 @@ CREATE TABLE documents (
 CREATE INDEX "index_documents_on_english" ON "documents" ("english");
 CREATE INDEX "index_documents_on_japanese" ON "documents" ("japanese");
 `
-	insertQuery = `
-INSERT INTO documents (english, japanese, parts_of_speech, text) VALUES ($1,$2, $3, $4)
-`
 )
 
 // Eijiro is a eijiro module.
 type Eijiro struct {
 	database string
-}
-
-// Document is type for `dictionaries` table
-type Document struct {
-	ID   int    `db:"id"`
-	Text string `db:"text"`
 }
 
 // NewEijiro creates a new eijiro.
@@ -51,13 +43,13 @@ func (e *Eijiro) InitDB() error {
 		return nil
 	}
 
-	db, err := sqlx.Connect("sqlite3", e.database)
+	db, err := sql.Open("sqlite3", e.database)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	db.MustExec(schema)
+	db.Exec(schema)
 
 	return nil
 }
@@ -76,56 +68,54 @@ func (e *Eijiro) Import(filename string) error {
 		return nil
 	}
 
-	db, err := sqlx.Connect("sqlite3", e.database)
+	db, err := sql.Open("sqlite3", e.database)
 	if err != nil {
 		return err
 	}
 
 	scanner := bufio.NewScanner(file)
-	tx := db.MustBegin()
+	tx, _ := db.Begin()
 	for scanner.Scan() {
-		text := scanner.Text()
-		if strings.HasPrefix(text, "■") {
-			text = strings.TrimPrefix(text, "■")
+		doc := models.Document{}
+		doc.Text = scanner.Text()
+		if strings.HasPrefix(doc.Text, "■") {
+			doc.Text = strings.TrimPrefix(doc.Text, "■")
 		}
 
-		var en, ja, partsOfSpeech string
-
-		words := strings.Split(text, ":")
-		ja = strings.TrimSpace(words[1])
+		words := strings.Split(doc.Text, ":")
+		doc.Japanese = strings.TrimSpace(words[1])
 		startIndex := strings.IndexAny(words[0], "{")
 		if startIndex != -1 {
 			endIndex := strings.IndexAny(words[0], "}")
-			partsOfSpeech = words[0][startIndex+1 : endIndex]
-			en = strings.TrimSpace(words[0][:startIndex])
+			doc.PartsOfSpeech = words[0][startIndex+1 : endIndex]
+			doc.English = strings.TrimSpace(words[0][:startIndex])
 		} else {
-			en = strings.TrimSpace(words[0])
+			doc.English = strings.TrimSpace(words[0])
 		}
 
-		tx.MustExec(insertQuery, en, ja, partsOfSpeech, text)
+		doc.Insert(tx)
 	}
 
 	if err = scanner.Err(); err != nil {
 		return err
 	}
 
-	tx.Commit()
-	return nil
+	return tx.Commit()
 }
 
 // Select select text from database
-func (e *Eijiro) Select(search string) ([]Document, error) {
-	db, err := sqlx.Connect("sqlite3", e.database)
+func (e *Eijiro) Select(search string) ([]*models.Document, error) {
+	db, err := sql.Open("sqlite3", e.database)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
-	documents := []Document{}
+	documents := []*models.Document{}
 	if isASCII(search) {
-		db.Select(&documents, "SELECT text FROM documents WHERE english = $1 OR english LIKE $2", search, search+"%")
+		documents, err = models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = ? OR english LIKE ?", search, search+"%")
 	} else {
-		db.Select(&documents, "SELECT text FROM documents WHERE japanese LIKE $1", search+"%")
+		documents, err = models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE japanese LIKE ?", search+"%")
 	}
 
 	if err != nil {
