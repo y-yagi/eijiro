@@ -111,18 +111,11 @@ func (e *Eijiro) Select(search string) ([]*models.Document, error) {
 	}
 	defer db.Close()
 
-	documents := []*models.Document{}
 	if isASCII(search) {
-		documents, err = models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = ? OR english LIKE ?", search, search+"%")
-	} else {
-		documents, err = models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE japanese LIKE ?", search+"%")
+		return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = ? OR english LIKE ?", search, search+"%")
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	return documents, nil
+	return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE japanese LIKE ?", search+"%")
 }
 
 func isASCII(s string) bool {
