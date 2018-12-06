@@ -133,6 +133,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		}
 
 		dlogger.Print("Start Select")
+		searchText = strings.TrimSpace(searchText)
 		documents, err := ej.Select(searchText)
 		if err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
