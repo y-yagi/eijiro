@@ -12,6 +12,7 @@ import (
 
 	"github.com/chzyer/readline"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pkg/profile"
 	"github.com/y-yagi/configure"
 	"github.com/y-yagi/debuglog"
 	"github.com/y-yagi/eijiro"
@@ -54,6 +55,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	var importFile string
 	var config bool
 	var interactive bool
+	var profileFlg bool
 
 	exitCode = 0
 
@@ -63,7 +65,12 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	flags.BoolVar(&config, "c", false, "Edit config.")
 	flags.BoolVar(&interactive, "i", false, "Use interactive mode.")
 	flags.BoolVar(&interactive, "interactive", false, "Use interactive mode.")
+	flags.BoolVar(&profileFlg, "profile", false, "Enable profile.")
 	flags.Parse(args[1:])
+
+	if profileFlg {
+		defer profile.Start().Stop()
+	}
 
 	if config {
 		editor := os.Getenv("EDITOR")

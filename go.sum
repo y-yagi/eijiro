@@ -8,6 +8,8 @@ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 h1:q763qf9huN11kDQavWs
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/mattn/go-sqlite3 v1.10.0 h1:jbhqpg7tQe4SupckyijYiy0mJJ/pRyHvXf7JdWK860o=
 github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
+github.com/pkg/profile v1.2.1 h1:F++O52m40owAmADcojzM+9gyjmMOY/T4oYJkgFDH8RE=
+github.com/pkg/profile v1.2.1/go.mod h1:hJw3o1OdXxsrSjjVksARp5W95eeEaEfptyVZyv6JUPA=
 github.com/y-yagi/configure v0.1.0 h1:0mdRnkHw1NYST2f10OeeNsiaSLc12Za7IkMgse7zp00=
 github.com/y-yagi/configure v0.1.0/go.mod h1:BztcwSytGmEB/wRUn4z6kIQhYmCZvbXUGKWkWjuJGkg=
 github.com/y-yagi/debuglog v0.2.0 h1:v4VETfgN4Zffz9AEtPo37UcHIQhoQz/1ggp7WnjcuSE=
