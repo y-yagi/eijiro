@@ -21,10 +21,10 @@ jobs:
             go mod vendor
 
       - run:
-          name: Run megacheck
+          name: Run staticcheck
           command: |
-            go get -u honnef.co/go/tools/cmd/megacheck
-            GO111MODULE=off megacheck ./...
+            go get -u honnef.co/go/tools/cmd/staticcheck
+            GO111MODULE=off staticcheck ./...
 
   modules-update:
     docker:
