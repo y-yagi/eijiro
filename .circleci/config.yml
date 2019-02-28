@@ -1,34 +1,48 @@
 version: 2
+
+test: &test
+  steps:
+    - checkout
+
+    - run:
+        name: Run go mod
+        command: |
+          go mod download
+          go mod vendor
+    - run:
+        name: Run vet
+        command: go vet ./...
+    - run:
+        name: Run lint
+        command: |
+          GO111MODULE=off go get -u golang.org/x/lint/golint
+          GO111MODULE=off golint -set_exit_status $(go list ./... | grep -v /vendor/)
+    - run:
+        name: Run staticcheck
+        command: |
+          GO111MODULE=off go get -u honnef.co/go/tools/cmd/staticcheck
+          GO111MODULE=off staticcheck ./...
+
 jobs:
-  build:
+  go-1.11-test:
+    docker:
+      - image: golang:1.11-stretch
+        environment:
+          GO111MODULE: "on"
+    working_directory: /go/src/github.com/y-yagi/eijiro
+    <<: *test
+
+  go-1.12-test:
     docker:
       - image: golang:1.12-stretch
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/y-yagi/eijiro
-    steps:
-      - checkout
-
-      - run:
-          name: Run lint
-          command: |
-            GO111MODULE=off go get -u golang.org/x/lint/golint
-            GO111MODULE=off golint -set_exit_status ./...
-      - Run:
-          name: Run go mod
-          command: |
-            go mod download
-            go mod vendor
-
-      - run:
-          name: Run staticcheck
-          command: |
-            GO111MODULE=off go get -u honnef.co/go/tools/cmd/staticcheck
-            GO111MODULE=off staticcheck ./...
+    <<: *test
 
   modules-update:
     docker:
-      - image: golang:1.12-stretch
+      - image: golang:1.11-stretch
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/y-yagi/eijiro
@@ -46,7 +60,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      - go-1.11-test
+      - go-1.12-test
   scheduled-workflow:
     triggers:
       - schedule:
