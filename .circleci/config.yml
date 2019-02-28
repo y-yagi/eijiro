@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.11
+      - image: golang:1.12-stretch
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/y-yagi/eijiro
@@ -28,7 +28,7 @@ jobs:
 
   modules-update:
     docker:
-      - image: circleci/golang:1.11
+      - image: golang:1.12-stretch
         environment:
           GO111MODULE: "on"
     working_directory: /go/src/github.com/y-yagi/eijiro
