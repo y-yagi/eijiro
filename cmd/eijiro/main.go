@@ -164,7 +164,6 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			return
 		}
 	}
-	return
 }
 
 func runSelectCmd(r io.Reader, out, err io.Writer) error {
