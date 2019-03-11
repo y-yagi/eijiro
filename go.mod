@@ -9,5 +9,5 @@ require (
 	github.com/y-yagi/configure v0.1.0
 	github.com/y-yagi/debuglog v0.2.0
 	github.com/y-yagi/goext v0.1.0
-	golang.org/x/sys v0.0.0-20190304154630-e844e0132e93 // indirect
+	golang.org/x/sys v0.0.0-20190311152110-c8c8c57fd1e1 // indirect
 )
