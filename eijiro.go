@@ -3,10 +3,12 @@ package eijiro
 import (
 	"bufio"
 	"database/sql"
+	"log"
 	"os"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/y-yagi/debuglog"
 	"github.com/y-yagi/eijiro/models"
 	"github.com/y-yagi/goext/osext"
 )
@@ -29,11 +31,12 @@ CREATE INDEX "index_documents_on_japanese" ON "documents" ("japanese");
 // Eijiro is a eijiro module.
 type Eijiro struct {
 	database string
+	dlogger  *debuglog.Logger
 }
 
 // NewEijiro creates a new eijiro.
 func NewEijiro(database string) *Eijiro {
-	eijiro := &Eijiro{database: database}
+	eijiro := &Eijiro{database: database, dlogger: debuglog.New(os.Stderr, debuglog.Flag(log.LstdFlags))}
 	return eijiro
 }
 
@@ -105,12 +108,14 @@ func (e *Eijiro) Import(filename string) error {
 
 // Select select text from database
 func (e *Eijiro) Select(search string) ([]*models.Document, error) {
+	e.dlogger.Print("Start sql.Open")
 	db, err := sql.Open("sqlite3", e.database)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
 
+	e.dlogger.Print("Start GetDocumentsBySQL")
 	if isASCII(search) {
 		return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = ? OR english LIKE ?", search, search+"%")
 	}
