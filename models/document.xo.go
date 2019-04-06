@@ -42,25 +42,15 @@ func (d *Document) Insert(db XODB) error {
 	const sqlstr = `INSERT INTO documents (` +
 		`english, japanese, parts_of_speech, text` +
 		`) VALUES (` +
-		`?, ?, ?, ?` +
+		`$1, $2, $3, $4` +
 		`)`
 
 	// run query
 	XOLog(sqlstr, d.English, d.Japanese, d.PartsOfSpeech, d.Text)
-	res, err := db.Exec(sqlstr, d.English, d.Japanese, d.PartsOfSpeech, d.Text)
+	_, err = db.Exec(sqlstr, d.English, d.Japanese, d.PartsOfSpeech, d.Text)
 	if err != nil {
 		return err
 	}
-
-	// retrieve id
-	id, err := res.LastInsertId()
-	if err != nil {
-		return err
-	}
-
-	// set primary key and existence
-	d.ID = int(id)
-	d._exists = true
 
 	return nil
 }
@@ -81,8 +71,8 @@ func (d *Document) Update(db XODB) error {
 
 	// sql query
 	const sqlstr = `UPDATE documents SET ` +
-		`english = ?, japanese = ?, parts_of_speech = ?, text = ?` +
-		` WHERE id = ?`
+		`english = $1, japanese = $2, parts_of_speech = $3, text = $4` +
+		` WHERE id = $5`
 
 	// run query
 	XOLog(sqlstr, d.English, d.Japanese, d.PartsOfSpeech, d.Text, d.ID)
@@ -114,7 +104,7 @@ func (d *Document) Delete(db XODB) error {
 	}
 
 	// sql query
-	const sqlstr = `DELETE FROM documents WHERE id = ?`
+	const sqlstr = `DELETE FROM documents WHERE id = $1`
 
 	// run query
 	XOLog(sqlstr, d.ID)
@@ -139,7 +129,7 @@ func DocumentByID(db XODB, id int) (*Document, error) {
 	const sqlstr = `SELECT ` +
 		`id, english, japanese, parts_of_speech, text ` +
 		`FROM documents ` +
-		`WHERE id = ?`
+		`WHERE id = $1`
 
 	// run query
 	XOLog(sqlstr, id)

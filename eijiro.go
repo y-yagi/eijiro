@@ -10,13 +10,12 @@ import (
 
 	"github.com/y-yagi/debuglog"
 	"github.com/y-yagi/eijiro/models"
-	"github.com/y-yagi/goext/osext"
 )
 
 var (
 	schema = `
 CREATE TABLE documents (
-	id integer primary key autoincrement not null,
+	id SERIAL PRIMARY KEY,
 	english varchar not null,
 	japanese varchar not null,
 	parts_of_speech varchar,
@@ -42,11 +41,7 @@ func NewEijiro(database string) *Eijiro {
 
 // InitDB initialize database.
 func (e *Eijiro) InitDB() error {
-	if osext.IsExist(e.database) {
-		return nil
-	}
-
-	db, err := sql.Open("sqlite3", e.database)
+	db, err := sql.Open("postgres", e.database)
 	if err != nil {
 		return err
 	}
@@ -65,13 +60,12 @@ func (e *Eijiro) Import(filename string) error {
 	}
 	defer file.Close()
 
-	os.Remove(e.database)
 	err = e.InitDB()
 	if err != nil {
 		return nil
 	}
 
-	db, err := sql.Open("sqlite3", e.database)
+	db, err := sql.Open("postgres", e.database)
 	if err != nil {
 		return err
 	}
@@ -96,7 +90,9 @@ func (e *Eijiro) Import(filename string) error {
 			doc.English = strings.TrimSpace(words[0])
 		}
 
-		doc.Insert(tx)
+		if err = doc.Insert(tx); err != nil {
+			return err
+		}
 	}
 
 	if err = scanner.Err(); err != nil {
@@ -109,7 +105,7 @@ func (e *Eijiro) Import(filename string) error {
 // Select select text from database
 func (e *Eijiro) Select(search string) ([]*models.Document, error) {
 	e.dlogger.Print("Start sql.Open")
-	db, err := sql.Open("sqlite3", e.database)
+	db, err := sql.Open("postgres", e.database)
 	if err != nil {
 		return nil, err
 	}
@@ -117,10 +113,10 @@ func (e *Eijiro) Select(search string) ([]*models.Document, error) {
 
 	e.dlogger.Print("Start GetDocumentsBySQL")
 	if isASCII(search) {
-		return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = ? OR english LIKE ?", search, search+"%")
+		return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE english = $1 OR english LIKE $2", search, search+"%")
 	}
 
-	return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE japanese LIKE ?", search+"%")
+	return models.GetDocumentsBySQL(db, "SELECT text FROM documents WHERE japanese LIKE $1", search+"%")
 }
 
 func isASCII(s string) bool {
