@@ -57,6 +57,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	var config bool
 	var interactive bool
 	var profileFlg bool
+	var err error
 
 	exitCode = 0
 
@@ -88,7 +89,6 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	}
 
 	ej := eijiro.NewEijiro(cfg.DataBase)
-	err := ej.InitDB()
 	if err != nil {
 		fmt.Fprintf(errStream, "Error: %v\n", err)
 		exitCode = 1
