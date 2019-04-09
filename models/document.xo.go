@@ -155,7 +155,8 @@ func DocumentByID(db XODB, id int) (*Document, error) {
 	return &d, nil
 }
 
-func GetDocumentsBySQL(db XODB, query string, args ...interface{}) ([]*Document, error) {
+func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]*Document, error) {
+	query := "SELECT text FROM documents " + condition
 	q, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
