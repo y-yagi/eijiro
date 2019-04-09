@@ -5,6 +5,10 @@ package models
 
 import (
 	"errors"
+	"log"
+	"os"
+
+	"github.com/y-yagi/debuglog"
 )
 
 // Document represents a row from 'documents'.
@@ -155,7 +159,8 @@ func DocumentByID(db XODB, id int) (*Document, error) {
 	return &d, nil
 }
 
-func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]*Document, error) {
+func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]Document, error) {
+	dlogger := debuglog.New(os.Stderr, debuglog.Flag(log.LstdFlags))
 	query := "SELECT text FROM documents " + condition
 	q, err := db.Query(query, args...)
 	if err != nil {
@@ -163,17 +168,17 @@ func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]*Docum
 	}
 	defer q.Close()
 
-	var res []*Document
+	res := make([]Document, 1000)
+	index := 0
 
+	dlogger.Print("Start scan")
 	for q.Next() {
-		d := Document{}
-
-		// scan
-		err = q.Scan(&d.Text)
+		err = q.Scan(&res[index].Text)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, &d)
+		index++
 	}
+	dlogger.Print("End scan")
 	return res, nil
 }
