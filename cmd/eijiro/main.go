@@ -56,6 +56,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	var config bool
 	var interactive bool
 	var profileFlg bool
+	var err error
 
 	exitCode = 0
 
@@ -73,32 +74,17 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	}
 
 	if config {
-		editor := os.Getenv("EDITOR")
-		if len(editor) == 0 {
-			editor = "vim"
-		}
-
-		if err := configure.Edit(cmd, editor); err != nil {
+		if err = runConfigure(); err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
-			return
 		}
-		return
-	}
-
-	ej := eijiro.NewEijiro(cfg.DataBase)
-	err := ej.InitDB()
-	if err != nil {
-		fmt.Fprintf(errStream, "Error: %v\n", err)
-		exitCode = 1
 		return
 	}
 
 	if len(importFile) != 0 {
-		if err = ej.Import(importFile); err != nil {
+		if err = runImport(importFile); err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
-			return
 		}
 		return
 	}
@@ -126,6 +112,14 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			return
 		}
 		defer l.Close()
+	}
+
+	ej := eijiro.NewEijiro(cfg.DataBase)
+	err = ej.Init()
+	if err != nil {
+		fmt.Fprintf(errStream, "Error: %v\n", err)
+		exitCode = 1
+		return
 	}
 
 	for {
@@ -161,9 +155,26 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		}
 
 		if !interactive {
+			ej.Terminate()
 			return
 		}
 	}
+}
+
+func runConfigure() error {
+	editor := os.Getenv("EDITOR")
+	if len(editor) == 0 {
+		editor = "vim"
+	}
+
+	return configure.Edit(cmd, editor)
+}
+
+func runImport(file string) error {
+	ej := eijiro.NewEijiro(cfg.DataBase)
+	err := ej.Import(file)
+	ej.Terminate()
+	return err
 }
 
 func runSelectCmd(r io.Reader, out, err io.Writer) error {
