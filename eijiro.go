@@ -107,7 +107,7 @@ func (e *Eijiro) Import(filename string) error {
 }
 
 // Select select text from database
-func (e *Eijiro) Select(search string) ([]*models.Document, error) {
+func (e *Eijiro) Select(search string) ([]models.Document, error) {
 	e.dlogger.Print("Start sql.Open")
 	db, err := sql.Open("sqlite3", e.database)
 	if err != nil {
