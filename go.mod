@@ -6,7 +6,7 @@ require (
 	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/pkg/profile v1.3.0
-	github.com/y-yagi/configure v0.1.0
+	github.com/y-yagi/configure v0.2.0
 	github.com/y-yagi/debuglog v0.2.0
-	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
+	golang.org/x/sys v0.0.0-20190429190828-d89cdac9e872 // indirect
 )
