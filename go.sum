@@ -14,5 +14,5 @@ github.com/y-yagi/configure v0.2.0 h1:v27/4bRcJKQgrd4Yh9y9Fptoa15wuldazrjPBWCvKr
 github.com/y-yagi/configure v0.2.0/go.mod h1:BztcwSytGmEB/wRUn4z6kIQhYmCZvbXUGKWkWjuJGkg=
 github.com/y-yagi/debuglog v0.2.0 h1:v4VETfgN4Zffz9AEtPo37UcHIQhoQz/1ggp7WnjcuSE=
 github.com/y-yagi/debuglog v0.2.0/go.mod h1:QqEOXhLIjhkErqqKVaxjXhHNxr8SaV/fnINtOkWBW0E=
-golang.org/x/sys v0.0.0-20190520201301-c432e742b0af h1:NXfmMfXz6JqGfG3ikSxcz2N93j6DgScr19Oo2uwFu88=
-golang.org/x/sys v0.0.0-20190520201301-c432e742b0af/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20190527104216-9cd6430ef91e h1:Pzdi8HRppinixnWWzN6KSa0QkBM+GKsTJaWwwfJskNw=
+golang.org/x/sys v0.0.0-20190527104216-9cd6430ef91e/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
