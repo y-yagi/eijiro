@@ -112,7 +112,7 @@ func (e *Eijiro) Import(filename string) error {
 }
 
 // Select select text from database
-func (e *Eijiro) Select(search string) ([]*models.Document, error) {
+func (e *Eijiro) Select(search string) ([]string, error) {
 	e.dlogger.Print("Start GetDocumentsBySQL")
 	if isASCII(search) {
 		return models.GetDocumentsBySQL(e.db, "WHERE english = ? OR english LIKE ?", search, search+"%")
