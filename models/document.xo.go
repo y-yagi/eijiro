@@ -155,7 +155,7 @@ func DocumentByID(db XODB, id int) (*Document, error) {
 	return &d, nil
 }
 
-func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]*Document, error) {
+func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]string, error) {
 	query := "SELECT text FROM documents " + condition
 	q, err := db.Query(query, args...)
 	if err != nil {
@@ -163,17 +163,17 @@ func GetDocumentsBySQL(db XODB, condition string, args ...interface{}) ([]*Docum
 	}
 	defer q.Close()
 
-	var res []*Document
+	res := make([]string, 0)
 
 	for q.Next() {
-		d := Document{}
+		var text string
 
 		// scan
-		err = q.Scan(&d.Text)
+		err = q.Scan(&text)
 		if err != nil {
 			return nil, err
 		}
-		res = append(res, &d)
+		res = append(res, text)
 	}
 	return res, nil
 }

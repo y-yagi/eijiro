@@ -135,7 +135,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 
 		dlogger.Print("Start Select")
 		searchText = strings.TrimSpace(searchText)
-		documents, err := ej.Select(searchText)
+		texts, err := ej.Select(searchText)
 		if err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
@@ -144,8 +144,8 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		dlogger.Print("End Select")
 
 		var buf string
-		for _, document := range documents {
-			buf += fmt.Sprintf("%s\n", document.Text)
+		for _, text := range texts {
+			buf += fmt.Sprintf("%s\n", text)
 		}
 
 		if len(cfg.SelectCmd) == 0 {
