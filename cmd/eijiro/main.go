@@ -56,6 +56,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	var config bool
 	var interactive bool
 	var profileFlg bool
+	var dbconsoleFlg bool
 	var err error
 
 	exitCode = 0
@@ -67,6 +68,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 	flags.BoolVar(&interactive, "i", false, "Use interactive mode.")
 	flags.BoolVar(&interactive, "interactive", false, "Use interactive mode.")
 	flags.BoolVar(&profileFlg, "profile", false, "Enable profile.")
+	flags.BoolVar(&dbconsoleFlg, "db", false, "Run db console.")
 	flags.Parse(args[1:])
 
 	if profileFlg {
@@ -83,6 +85,14 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 
 	if len(importFile) != 0 {
 		if err = runImport(importFile); err != nil {
+			fmt.Fprintf(errStream, "Error: %v\n", err)
+			exitCode = 1
+		}
+		return
+	}
+
+	if dbconsoleFlg {
+		if err = runDBConsole(); err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
 		}
@@ -185,4 +195,16 @@ func runSelectCmd(r io.Reader, out, err io.Writer) error {
 	cmd.Stdin = r
 
 	return cmd.Run()
+}
+
+func runDBConsole() error {
+	cmd := exec.Command("sqlite3", cfg.DataBase)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
 }
