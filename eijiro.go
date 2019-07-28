@@ -123,7 +123,7 @@ func (e *Eijiro) Select(search string) ([]string, error) {
 	return models.GetDocumentsBySQL(e.db, "WHERE japanese LIKE ? LIMIT 100", search+"%")
 }
 
-// Select select text from database
+// SelectViaCmd select text from database via uses `sqlite3` command
 func (e *Eijiro) SelectViaCmd(search string) (string, error) {
 	var query string
 
