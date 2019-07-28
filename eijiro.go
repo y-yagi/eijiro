@@ -3,8 +3,10 @@ package eijiro
 import (
 	"bufio"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"unicode/utf8"
 
@@ -119,6 +121,19 @@ func (e *Eijiro) Select(search string) ([]string, error) {
 	}
 
 	return models.GetDocumentsBySQL(e.db, "WHERE japanese LIKE ?", search+"%")
+}
+
+// Select select text from database
+func (e *Eijiro) SelectViaCmd(search string) (string, error) {
+	var query string
+
+	if isASCII(search) {
+		query = fmt.Sprintf("SELECT text FROM documents WHERE english = '%s' OR english LIKE '%s' LIMIT 100", search, search+"%")
+	} else {
+		query = fmt.Sprintf("SELECT text FROM documents WHERE japanese LIKE '%s' LIMIT 100", search+"%")
+	}
+	out, err := exec.Command("sqlite3", e.database, query).Output()
+	return string(out), err
 }
 
 func isASCII(s string) bool {
