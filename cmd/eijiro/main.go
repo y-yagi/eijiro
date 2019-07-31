@@ -145,18 +145,13 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 
 		dlogger.Print("Start Select")
 		searchText = strings.TrimSpace(searchText)
-		texts, err := ej.Select(searchText)
+		buf, err := ej.SelectViaCmd(searchText)
 		if err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
 			exitCode = 1
 			return
 		}
 		dlogger.Print("End Select")
-
-		var buf string
-		for _, text := range texts {
-			buf += fmt.Sprintf("%s\n", text)
-		}
 
 		if len(cfg.SelectCmd) == 0 {
 			fmt.Fprintf(outStream, "%v\n", buf)
