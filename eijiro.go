@@ -44,7 +44,7 @@ func NewEijiro(database string) *Eijiro {
 
 // Init initialize Eijiro.
 func (e *Eijiro) Init() error {
-	db, err := sql.Open("sqlite3", e.database)
+	db, err := sql.Open("sqlite3", e.database+"?_case_sensitive_like=on")
 	if err != nil {
 		return err
 	}
