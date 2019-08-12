@@ -44,7 +44,7 @@ func NewEijiro(database string) *Eijiro {
 
 // Init initialize Eijiro.
 func (e *Eijiro) Init() error {
-	db, err := sql.Open("sqlite3", e.database)
+	db, err := sql.Open("sqlite3", e.database+"?_case_sensitive_like=on")
 	if err != nil {
 		return err
 	}
@@ -143,4 +143,20 @@ func isASCII(s string) bool {
 		}
 	}
 	return true
+}
+
+//lint:ignore U1000 this is for debug purpose.
+func (e *Eijiro) explain() {
+	query := "explain query plan SELECT text FROM documents WHERE english = 'import' OR english LIKE 'import%' LIMIT 50;"
+
+	var result string
+	var id1, id2, id3 int
+
+	err := e.db.QueryRow(query).Scan(&id1, &id2, &id3, &result)
+
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+	} else {
+		fmt.Printf("explain: %s\n", result)
+	}
 }
