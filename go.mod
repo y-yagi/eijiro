@@ -8,5 +8,5 @@ require (
 	github.com/pkg/profile v1.3.0
 	github.com/y-yagi/configure v0.2.0
 	github.com/y-yagi/debuglog v0.2.0
-	golang.org/x/sys v0.0.0-20190902133755-9109b7679e13 // indirect
+	golang.org/x/sys v0.0.0-20190909082730-f460065e899a // indirect
 )
