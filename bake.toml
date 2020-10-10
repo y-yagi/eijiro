@@ -1,0 +1,24 @@
+[default]
+dependencies = ["build"]
+
+[test]
+command = ["go", "test", "-v", "./..."]
+
+[clean]
+command = ["go", "clean", "-testcache"]
+
+[build]
+command = ["go", "build", "./cmd/eijiro"]
+dependencies = ["clean"]
+
+[lint]
+dependencies = ["golint", "staticcheck"]
+
+[golint]
+command = ["golint", "-set_exit_status"]
+
+[staticcheck]
+command = ["staticcheck", "./..."]
+
+[install_tools]
+command = ["go", "-u", "golang.org/x/lint/golint", "honnef.co/go/tools/cmd/staticcheck"]
