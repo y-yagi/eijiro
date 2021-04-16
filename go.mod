@@ -9,5 +9,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/pkg/profile v1.5.0
 	github.com/y-yagi/configure v0.2.0
-	github.com/y-yagi/debuglog v0.2.0
+	github.com/y-yagi/debuglog v0.2.1
 )
