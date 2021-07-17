@@ -88,9 +88,7 @@ func (e *Eijiro) Import(filename string) error {
 	for scanner.Scan() {
 		doc := models.Document{}
 		doc.Text = scanner.Text()
-		if strings.HasPrefix(doc.Text, "■") {
-			doc.Text = strings.TrimPrefix(doc.Text, "■")
-		}
+		doc.Text = strings.TrimPrefix(doc.Text, "■")
 
 		words := strings.Split(doc.Text, ":")
 		doc.Japanese = strings.TrimSpace(words[1])
