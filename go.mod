@@ -1,6 +1,6 @@
 module github.com/y-yagi/eijiro
 
-go 1.15
+go 1.17
 
 require (
 	github.com/chzyer/logex v1.1.10 // indirect
@@ -12,3 +12,5 @@ require (
 	github.com/y-yagi/debuglog v0.2.1
 	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
 )
+
+require github.com/pelletier/go-toml v1.8.1 // indirect
