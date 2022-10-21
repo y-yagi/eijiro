@@ -3,14 +3,16 @@ module github.com/y-yagi/eijiro
 go 1.17
 
 require (
-	github.com/chzyer/logex v1.1.10 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
-	github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15
-	github.com/pkg/profile v1.6.0
+	github.com/pkg/profile v1.7.0
 	github.com/y-yagi/configure v0.3.0
 	github.com/y-yagi/debuglog v0.2.1
-	golang.org/x/sys v0.0.0-20210503173754-0981d6026fa6 // indirect
+	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
 )
 
-require github.com/pelletier/go-toml v1.8.1 // indirect
+require (
+	github.com/felixge/fgprof v0.9.3 // indirect
+	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
+	github.com/pelletier/go-toml v1.8.1 // indirect
+)
