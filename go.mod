@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
-	github.com/mattn/go-sqlite3 v1.14.15
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pkg/profile v1.7.0
 	github.com/y-yagi/configure v0.3.0
 	github.com/y-yagi/debuglog v0.2.1
