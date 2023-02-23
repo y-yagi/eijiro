@@ -3,12 +3,12 @@ module github.com/y-yagi/eijiro
 go 1.17
 
 require (
-	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
+	github.com/chzyer/readline v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pkg/profile v1.7.0
 	github.com/y-yagi/configure v0.3.0
 	github.com/y-yagi/debuglog v0.2.1
-	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
+	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 )
 
 require (
