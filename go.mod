@@ -1,6 +1,6 @@
 module github.com/y-yagi/eijiro
 
-go 1.17
+go 1.23
 
 require (
 	github.com/chzyer/readline v1.5.1
