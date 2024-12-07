@@ -9,31 +9,16 @@ jobs:
       matrix:
         go: [1.23]
     steps:
-
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go }}
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
 
-    - name: Get dependencies
-      run: |
-        go mod download
-      env:
-        GO111MODULE: on
-
-    - name: Run lint
-      run: |
-        go get -u golang.org/x/lint/golint
-        golint -set_exit_status
-      env:
-        GO111MODULE: on
-
-    - name: Run staticcheck
-      run: |
-        go get -u honnef.co/go/tools/cmd/staticcheck
-        staticcheck ./...
-      env:
-        GO111MODULE: on
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        args: --timeout=10m
