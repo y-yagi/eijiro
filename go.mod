@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/chzyer/readline v1.5.1
-	github.com/mattn/go-sqlite3 v1.14.25
+	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/pkg/profile v1.7.0
 	github.com/y-yagi/configure v0.3.0
 	github.com/y-yagi/debuglog v0.2.1
