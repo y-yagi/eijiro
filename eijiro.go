@@ -55,6 +55,9 @@ func (e *Eijiro) Init() error {
 
 // Terminate terminate Eijiro.
 func (e *Eijiro) Terminate() error {
+	if e.db == nil {
+		return nil
+	}
 	return e.db.Close()
 }
 
@@ -75,36 +78,47 @@ func (e *Eijiro) Import(filename string) error {
 	os.Remove(e.database)
 	err = e.Init()
 	if err != nil {
-		return nil
+		return err
 	}
 
 	err = e.Migrate()
 	if err != nil {
-		return nil
+		return err
+	}
+
+	tx, err := e.db.Begin()
+	if err != nil {
+		return err
 	}
 
 	scanner := bufio.NewScanner(file)
-	tx, _ := e.db.Begin()
 	for scanner.Scan() {
 		doc := models.Document{}
-		doc.Text = scanner.Text()
-		doc.Text = strings.TrimPrefix(doc.Text, "■")
+		doc.Text = strings.TrimPrefix(scanner.Text(), "■")
 
-		words := strings.Split(doc.Text, ":")
-		doc.Japanese = strings.TrimSpace(words[1])
-		startIndex := strings.IndexAny(words[0], "{")
-		if startIndex != -1 {
-			endIndex := strings.IndexAny(words[0], "}")
-			doc.PartsOfSpeech = words[0][startIndex+1 : endIndex]
-			doc.English = strings.TrimSpace(words[0][:startIndex])
-		} else {
-			doc.English = strings.TrimSpace(words[0])
+		left, right, found := strings.Cut(doc.Text, " : ")
+		if !found {
+			continue
 		}
 
-		doc.Insert(tx)
+		doc.Japanese = strings.TrimSpace(right)
+		startIndex := strings.Index(left, "{")
+		endIndex := strings.LastIndex(left, "}")
+		if startIndex != -1 && endIndex > startIndex {
+			doc.PartsOfSpeech = left[startIndex+1 : endIndex]
+			doc.English = strings.TrimSpace(left[:startIndex])
+		} else {
+			doc.English = strings.TrimSpace(left)
+		}
+
+		if err = doc.Insert(tx); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	if err = scanner.Err(); err != nil {
+		tx.Rollback()
 		return err
 	}
 
