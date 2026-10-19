@@ -139,6 +139,7 @@ func (e *Eijiro) Select(search string) ([]string, error) {
 func (e *Eijiro) SelectViaCmd(search string) (string, error) {
 	var query string
 
+	search = strings.ReplaceAll(search, "'", "''")
 	if isASCII(search) {
 		query = fmt.Sprintf("SELECT text FROM documents WHERE english = '%s' OR english LIKE '%s'", search, search+"%")
 	} else {
