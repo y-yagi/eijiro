@@ -37,7 +37,9 @@ func init() {
 
 	if len(cfg.DataBase) == 0 {
 		cfg.DataBase = filepath.Join(configure.ConfigDir(cmd), cmd+".db")
-		configure.Save(cmd, cfg)
+		if err := configure.Save(cmd, cfg); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: failed to save config: %v\n", err)
+		}
 	}
 	dlogger = debuglog.New(os.Stderr, debuglog.Flag(log.LstdFlags))
 }
@@ -108,7 +110,12 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			usage(flags)
 			return
 		}
-		searchText = flags.Args()[0]
+		searchText = strings.TrimSpace(flags.Args()[0])
+		if len(searchText) == 0 {
+			exitCode = 2
+			usage(flags)
+			return
+		}
 	} else {
 		l, err = readline.NewEx(&readline.Config{
 			Prompt:          "Eiji: ",
@@ -131,6 +138,7 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		exitCode = 1
 		return
 	}
+	defer ej.Terminate()
 
 	for {
 		if interactive {
@@ -138,13 +146,13 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 			if err != nil {
 				return
 			}
+			searchText = strings.TrimSpace(searchText)
 			if len(searchText) == 0 {
 				continue
 			}
 		}
 
 		dlogger.Print("Start Select")
-		searchText = strings.TrimSpace(searchText)
 		texts, err := ej.Select(searchText)
 		if err != nil {
 			fmt.Fprintf(errStream, "Error: %v\n", err)
@@ -153,19 +161,25 @@ func run(args []string, outStream, errStream io.Writer) (exitCode int) {
 		}
 		dlogger.Print("End Select")
 
-		var buf string
+		var sb strings.Builder
 		for _, text := range texts {
-			buf += fmt.Sprintf("%s\n", text)
+			sb.WriteString(text)
+			sb.WriteString("\n")
 		}
+		buf := sb.String()
 
 		if len(cfg.SelectCmd) == 0 {
 			fmt.Fprintf(outStream, "%v\n", buf)
 		} else {
-			runSelectCmd(strings.NewReader(buf), outStream, errStream)
+			if err := runSelectCmd(strings.NewReader(buf), outStream, errStream); err != nil {
+				fmt.Fprintf(errStream, "Error: %v\n", err)
+				if !interactive {
+					exitCode = 1
+				}
+			}
 		}
 
 		if !interactive {
-			ej.Terminate()
 			return
 		}
 	}
