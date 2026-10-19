@@ -10,7 +10,7 @@ import (
 
 type config struct {
 	DataBase  string `toml:"database"`
-	SelectCmd string `tomo:"selectcmd"`
+	SelectCmd string `toml:"selectcmd"`
 }
 
 func BenchmarkGetDocumentsBySQL(b *testing.B) {

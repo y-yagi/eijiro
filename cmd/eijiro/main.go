@@ -22,7 +22,7 @@ const cmd = "eijiro"
 
 type config struct {
 	DataBase  string `toml:"database"`
-	SelectCmd string `tomo:"selectcmd"`
+	SelectCmd string `toml:"selectcmd"`
 }
 
 var cfg config
