@@ -21,4 +21,4 @@ command = ["golint", "-set_exit_status"]
 command = ["staticcheck", "./..."]
 
 [install_tools]
-command = ["go", "-u", "golang.org/x/lint/golint", "honnef.co/go/tools/cmd/staticcheck"]
+command = ["go", "install", "golang.org/x/lint/golint@latest", "honnef.co/go/tools/cmd/staticcheck@latest"]
