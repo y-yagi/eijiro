@@ -14,11 +14,11 @@ type config struct {
 }
 
 func BenchmarkGetDocumentsBySQL(b *testing.B) {
-	b.ResetTimer()
 	db := getDB()
 	defer db.Close()
 
 	search := "import"
+	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		GetDocumentsBySQL(db, "WHERE english = ? OR english LIKE ?", search, search+"%")
